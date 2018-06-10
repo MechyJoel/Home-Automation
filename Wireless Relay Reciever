@@ -1,0 +1,64 @@
+#include <nRF24L01.h> 
+#include <printf.h>
+#include <RF24.h>
+#include <RF24_config.h>
+RF24 radio(7, 8); //communication pins
+const byte address[6] = "00001"; //Address of arduino
+int recieveddata[5]; //declares an array for recieved data
+int in1 = 2; //set up variables on the pins of the relay module
+int in2 = 3;
+int in3 = 4;
+int in4 = 5;
+
+void setup() {
+
+  pinMode(in1, INPUT_PULLUP); //This needs to assigned to whatever pins the relay is connected to so that they do not flicker on when the module is powered up. VERY IMPORTANT
+  pinMode(in2, INPUT_PULLUP);
+  pinMode(in3, INPUT_PULLUP);
+  pinMode(in4, INPUT_PULLUP);
+
+  pinMode(in1, OUTPUT); //Defines relay module variables as a output.
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+  
+  Serial.begin(9600); //starts serial monitor
+  radio.begin();
+  radio.openReadingPipe(0, address);//recieves data from specified address
+  radio.setPALevel(RF24_PA_MAX); //reciever power level can either be MIN or MAX
+
+}
+
+void loop() {
+  radio.startListening();
+  radio.read(&recieveddata, sizeof(recieveddata)); //reads incoming array of data and places it in empty one stated earlier
+  int SwitchMaster = recieveddata[0]; //assigns recieved data to variables
+  int SwitchOne = recieveddata[1];
+  int SwitchTwo = recieveddata[2];
+  int SwitchThree = recieveddata[3];
+  int SwitchFour = recieveddata[4];
+  Serial.println(SwitchOne); //serial monitor data check
+  delay(50); // delay for variables to change
+
+  if (SwitchOne == 1)           //Control of relays depending on either if a 1 or 0 was recieved meaning that the switch was open or closed at the transciever.
+    digitalWrite(in1, LOW);
+  if (SwitchOne == 0)
+    digitalWrite(in1, HIGH);
+
+  if (SwitchTwo == 1)
+    digitalWrite(in2, LOW);
+  if (SwitchTwo == 0)
+    digitalWrite(in2, HIGH);
+
+  if (SwitchThree == 1)
+    digitalWrite(in3, LOW);
+  if (SwitchThree == 0)
+    digitalWrite(in3, HIGH);
+
+  if (SwitchFour == 1)
+    digitalWrite(in4, LOW);
+  if (SwitchFour == 0)
+    digitalWrite(in4, HIGH);
+}
+
+
