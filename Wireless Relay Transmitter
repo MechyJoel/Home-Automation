@@ -1,0 +1,33 @@
+
+#include <nRF24L01.h>
+#include <printf.h>
+#include <RF24.h>
+#include <RF24_config.h>
+RF24 radio(7, 8); // CE, CSN     //Sets communication pins
+const byte address[6] = "00001"; //This is a unique address given to the other arduino its talking to. You can set up a network of arduinos with this check out mechatronics page
+
+void setup() {
+  Serial.begin(9600); //Initializes the serial monitor
+ radio.begin();
+  radio.openWritingPipe(address); //Tells transmitter to start talking to specified reciever
+  radio.setPALevel(RF24_PA_MIN); //Can change this to MAX or MIN depending on the power you want
+  radio.stopListening();
+ pinMode(2, INPUT_PULLUP);  //Uses a pullup resistor so that the output values is either a 1 or 0.
+  pinMode(3, INPUT_PULLUP); 
+  pinMode(4, INPUT_PULLUP);
+  pinMode(5, INPUT_PULLUP);
+  pinMode(6, INPUT_PULLUP);
+}
+
+void loop() {
+
+ int SwitchFour = digitalRead(2); //Assigns the data to the switches
+ int SwitchOne = digitalRead(3);
+ int SwitchTwo = digitalRead(4);
+ int SwitchThree = digitalRead(5);
+ int SwitchMaster = digitalRead(6);
+
+int variabledata[] = {SwitchMaster, SwitchOne, SwitchTwo, SwitchThree, SwitchFour}; //This sets up an array to start transmitting the data to turn off and on the relays
+radio.write(&variabledata, sizeof(variabledata)); //This transmits the data
+ Serial.println(variabledata[0]); //This is a check for seing if the data is being properly written to the variable in the array.
+}
